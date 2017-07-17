@@ -6,26 +6,36 @@
 
 */
 
+var searchString = "navigator.languages";
+var separatedRe = /navigator(.|\r|\n){0,200}\.languages/g;
+var separatedKey = "navigator{0,200}.languages";
+
+function findMatches(text, results) {
+    if (text.indexOf(searchString) != -1) {
+        results[searchString] = results[searchString] || {
+            count: 0,
+        };
+        results[searchString].count ++;
+    } else if (text.match(separatedRe) != null) {
+        results[separatedKey] = results[separatedKey] || {
+            count: 0,
+        };
+        results[separatedKey].count ++;
+    }
+}
+
 void function() {
-    window.CSSUsage.StyleWalker.recipesToRun.push( function navigatorLanguages( element, results) {
-        var re = /\.languages[;|,|)]+/g;
+    window.CSSUsage.StyleWalker.recipesToRun.push(function navigatorLanguages(element, results) {
         var nodeName = element.nodeName;
-        if (nodeName == "SCRIPT")
-        {
-            results[nodeName] = results[nodeName] || { count: 0, };
-            // if inline script. ensure that it's not our recipe script and look for string of interest
-            if (element.text !== undefined && element.text.match(re) != null)
-            {
-                results[nodeName].count++;
-            }
-            else if (element.src !== undefined && element.src != "")
-            {
+        if (nodeName == "SCRIPT") {
+            if (element.text !== undefined && element.text !== "") {
+                findMatches(element.text, results);
+            } else if (element.src !== undefined && element.src != "") {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", element.src, false);
                 xhr.send();
-                if (xhr.status === 200 && xhr.responseText.match(re) != null)
-                {
-                    results[nodeName].count++;
+                if (xhr.status === 200) {
+                    findMatches(xhr.responseText, results);
                 }
             }
         }
