@@ -30,7 +30,7 @@ void function() {
         if (nodeName == "SCRIPT") {
             if (element.text !== undefined && element.text !== "") {
                 findMatches(element.text, results);
-            } else if (element.src !== undefined && element.src != "") {
+            } else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", element.src, false);
                 xhr.send();
